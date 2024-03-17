@@ -74,7 +74,7 @@ function UserRegister() {
       account_name: username,
       profile_picture: file,
       qr_code: null,
-      role: 3,
+      role: 4,
     };
     console.log("Register: " + username);
     console.log("Register: " + email);

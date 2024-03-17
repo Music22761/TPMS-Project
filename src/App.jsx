@@ -9,6 +9,9 @@ import InstructorRegister from './page/instructorRegister'
 import AdminOrganizationRegister from './page/adminOrganizationRegister'
 import UserProfile from './page/user/userProfile'
 import CertificateGenerator from './page/user/certificate/CertificateGenerator'
+import HomeAfterLoginAdmin from './page/admin/homeAfterLoginAdmin'
+import AllowAdmin from './page/admin/allowAdmin'
+import AllowInstructor from './page/admin/allowInstructor'
 
 const routers = createBrowserRouter(
   [
@@ -19,6 +22,9 @@ const routers = createBrowserRouter(
     { path:"/instructorRegister", element:<InstructorRegister/>},
     { path:"/adminOrganizationRegister", element:<AdminOrganizationRegister/>},
     { path:"/homeAfterLogin", element:<HomeAfterLogin/>},
+    { path:"/homeAfterLoginAdmin", element:<HomeAfterLoginAdmin/>},
+    { path:"/allowAdmin", element:<AllowAdmin/>},
+    { path:"/allowInstructor", element:<AllowInstructor/>},
     { path:"/userProfile", element:<UserProfile/>},
     { path:"/certificateGen", element:<CertificateGenerator/>},
   ]

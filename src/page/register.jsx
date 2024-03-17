@@ -35,7 +35,7 @@ function RegisterPage() {
 
   return (
     <>
-      <div>
+      <div style={{display:'flex',justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="fixed" style={{ backgroundColor: "skyblue" }}>
             <Toolbar style={{ justifyContent: "space-between" }}>
@@ -69,15 +69,14 @@ function RegisterPage() {
           </AppBar>
         </Box>
 
-        <div style={{ display: "flex", justifyContent: "center" }}>
           <Card
             style={{
               display: "flex",
-              // justifyContent:'flex-end',
               flexDirection: "column",
-              alignItems: "center",
+              alignItems:'center',
               marginTop: "15vh",
               width: "30%",
+              minWidth:'400px',
               height: "80vh",
               backgroundColor: "skyblue",
               borderRadius: "30px",
@@ -151,7 +150,6 @@ function RegisterPage() {
               Users
             </Button>
           </Card>
-        </div>
       </div>
     </>
   );

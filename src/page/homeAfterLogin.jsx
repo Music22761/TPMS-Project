@@ -5,7 +5,6 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
-// import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Button,
@@ -15,21 +14,15 @@ import {
   Grid,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
-import * as React from "react";
-// import { styled, alpha } from '@mui/material/styles';
-// import Button from '@mui/material/Button';
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-// import EditIcon from "@mui/icons-material/Edit";
 import PersonIcon from "@mui/icons-material/Person";
 import Divider from "@mui/material/Divider";
-import ArchiveIcon from "@mui/icons-material/Archive";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-// import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import { AccountCircle, ArrowBackIos } from "@mui/icons-material";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -123,12 +116,14 @@ const StyledMenu = styled((props) => (
 function HomeAfterLogin() {
   const navigate = useNavigate();
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [user, setUser] = useState([]);
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  // const [users, setUsers] = useState([]);
+  // const [user, setUser] = useState([]);
+  const [courses, setCourses] = useState([]);
+  // const [searchParams] = useSearchParams();
+  // const id = searchParams.get("id");
+  const userLocal = JSON.parse(localStorage.getItem("objUser"));
 
   const services = new Service();
 
@@ -141,8 +136,8 @@ function HomeAfterLogin() {
   };
 
   useEffect(() => {
-    autoLoad(id);
-  }, [id]);
+    autoLoad(userLocal.id);
+  }, [userLocal.id]);
 
   const autoLoad = async (id) => {
     console.log(id);
@@ -150,12 +145,15 @@ function HomeAfterLogin() {
     setLoading(true);
     try {
 
-      const res2 = await services.getUserById(id);
-      const res = await services.getAllUser();
-      setUser(res2);
-      setUsers(res);
+      // const res2 = await services.getUserById(id);
+      // const res = await services.getAllUser();
+      const resCourse = await services.getAllCourse();
+      // setUser(res2);
+      // setUsers(res);
+      setCourses(resCourse);
+
       
-      // console.log(user?.[0].email);
+      console.log(userLocal);
     } catch (error) {
       console.error("Failed to load User:", error);
     } finally {
@@ -229,8 +227,7 @@ function HomeAfterLogin() {
                     style={{ borderRadius: "30px" }}
                   >
                     <PersonIcon style={{ marginRight: "5px" }} />
-                    Sitthikan Chaiyamart
-                    {/* {user?.[0].name_en} */}
+                    {userLocal.name_en}
                   </Button>
                   <StyledMenu
                     id="demo-customized-menu"
@@ -244,7 +241,7 @@ function HomeAfterLogin() {
                     <MenuItem
                       onClick={() => {
                         handleClose();
-                        goToUserProfile();
+                        goToUserProfile(userLocal.id);
                       }}
                       disableRipple
                     >
@@ -290,39 +287,40 @@ function HomeAfterLogin() {
           >
             <Typography variant="h4">หลักสูตรทั้งหมด</Typography>
             <Grid container columns={{ xs: 4, sm: 8, md: 12 }}>
-              {users?.map((e) => (
-                // eslint-disable-next-line react/jsx-key
-                <Grid
-                  xs={3}
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "center",
-                    alignContent: "center",
-                    marginTop: "5%",
-                  }}
-                >
-                  <CardActionArea
+                {courses?.map((e) => (
+                  // eslint-disable-next-line react/jsx-key
+                  <Grid
+                    xs={3}
                     style={{
                       display: "flex",
-                      flexDirection: "column",
+                      width: "100%",
                       justifyContent: "center",
-                      width: "70%",
-                      height: "250px",
-                      boxShadow: "3px 3px 3px 3px",
+                      alignContent: "center",
+                      marginTop: "5%",
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={e.profile_picture}
-                      alt={e.name}
-                    />
-                    <Typography variant="h5">{e.email}</Typography>
-                  </CardActionArea>
-                </Grid>
-              ))}
-            </Grid>
+                    <CardActionArea
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        width: "70%",
+                        height: "250px",
+                        boxShadow: "3px 3px 3px 3px",
+                        padding:'20px'
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={e.course_picture}
+                        alt={e.name}
+                      />
+                      <Typography variant="h5">{e.name}</Typography>
+                    </CardActionArea>
+                  </Grid>
+                ))}
+              </Grid>
           </div>
         </div>
       )}

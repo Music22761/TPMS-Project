@@ -38,6 +38,19 @@ function LoginPage() {
     navigate(`/homeAfterLogin?id=${id}&email=${email}&password=${password}`);
   }
 
+  function goToHomeAfterLoginAdmin(id, email, password) {
+    console.log(id);
+    console.log(email);
+    console.log(password);
+    navigate(
+      `/homeAfterLoginAdmin?id=${id}&email=${email}&password=${password}`
+    );
+  }
+
+  function goToHomePage() {
+    navigate(`/`);
+  }
+
   function goToRegisterPage() {
     navigate(`/register`);
   }
@@ -54,7 +67,8 @@ function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await services.getAllUser();
+      const res = await services.getAllUsersData();
+      console.log(res);
       setUsers(res);
     } catch (error) {
       console.error("Failed to load Users:", error);
@@ -130,6 +144,7 @@ function LoginPage() {
                 backgroundColor: "skyblue",
                 borderRadius: "30px",
                 marginRight: "5%",
+                minWidth: "400px",
               }}
             >
               <img
@@ -193,12 +208,34 @@ function LoginPage() {
                 }}
                 onClick={() => {
                   users?.map((e) => {
-                    if (email == e.email) {
-                      console.log("In email");
-                      if (password == e.password) {
-                        console.log("In Password");
-                        goToHomeAfterLogin(e.id,e.email,e.password);
+                    if (e.status == 1) {
+                      if (email == e.email) {
+                        console.log("In email");
+                        if (password == e.password) {
+                          if (e.role == 1) {
+                            alert("สวัสดีครับ ผู้ดูแลระบบ");
+                            console.log("In Password");
+                            localStorage.clear();
+                            localStorage.setItem("objUser", JSON.stringify(e));
+                            goToHomeAfterLoginAdmin(e.id, e.email, e.password);
+                          } else if (e.role == 2) {
+                            alert("สวัสดีครับ ผู้ดูแลองค์กร");
+                            goToHomePage();
+                          } else if (e.role == 3) {
+                            alert("สวัสดีครับ ผู้สอน");
+                            goToHomePage();
+                          } else if (e.role == 4) {
+                            alert("สวัสดีครับ User");
+                            console.log("In Password");
+                            localStorage.clear();
+                            localStorage.setItem("objUser", JSON.stringify(e));
+                            goToHomeAfterLogin(e.id, e.email, e.password);
+                          }
+                        }
                       }
+                    } else {
+                      // alert("บัญชีนี้ยังไม่ถูกสร้าง")
+                      console.log("บัญชีนี้ยังไม่ถูกสร้าง");
                     }
                   });
                 }}

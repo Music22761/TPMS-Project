@@ -17,14 +17,16 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import BadgeIcon from "@mui/icons-material/Badge";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { useRef, useState } from "react";
 import PhoneIcon from "@mui/icons-material/Phone";
 import "../css/avatar.css";
+import { Service } from "../api/service";
 
 function InstructorRegister() {
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState(null);
+
+  const [profile, setProfile] = useState(null);
   const [cvFile, setCvFile] = useState(null);
   const [signature, setSignature] = useState(null);
 
@@ -40,30 +42,143 @@ function InstructorRegister() {
   //   const [date, setDate] = useState(null);
   const fileInputRef = useRef(null);
 
+  const services = new Service();
+
   function openFileInput() {
     fileInputRef.current.click();
   }
 
-  function handleFileSelect(event) {
+  function handleProfileSelect(event) {
     const file = event.target.files[0];
     const imageUrl = URL.createObjectURL(file);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
     setImageUrl(imageUrl);
+    setProfile(formData);
     // ทำอะไรกับไฟล์ที่ถูกเลือก เช่น อ่านข้อมูลหรืออัพโหลดไปยังเซิร์ฟเวอร์
   }
 
-  //   function handleFileSelect(event) {
-  //     const file = event.target.files[0];
-  //     const imageUrl = URL.createObjectURL(file);
-  //     setImageUrl(imageUrl);
-  //     // ทำอะไรกับไฟล์ที่ถูกเลือก เช่น อ่านข้อมูลหรืออัพโหลดไปยังเซิร์ฟเวอร์
-  //   }
+  function handleCVFileSelect(event) {
+    const file = event.target.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setCvFile(formData);
+    // ทำอะไรกับไฟล์ที่ถูกเลือก เช่น อ่านข้อมูลหรืออัพโหลดไปยังเซิร์ฟเวอร์
+  }
+
+  function handleSignatureSelect(event) {
+    const file = event.target.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setSignature(formData);
+    // ทำอะไรกับไฟล์ที่ถูกเลือก เช่น อ่านข้อมูลหรืออัพโหลดไปยังเซิร์ฟเวอร์
+  }
+
+  async function uploadFileOnFireBase(
+    username,
+    email,
+    password,
+    nameTh,
+    lastNameTh,
+    nameEn,
+    lastNameEn,
+    phoneNumber,
+    profile,
+    cvfile,
+    signature
+  ) {
+    console.log("ImageOnfireBase: " + profile);
+    console.log("SignatureOnfireBase: " + signature);
+    console.log("CvOnfireBase: " + cvfile);
+
+    const resProfile = await services.postPictureOnFireBase(profile);
+    const parsedData1 = JSON.parse(resProfile); //แปลงค่าเป็น json
+    const urlProfile = parsedData1.url; //ดึงค่า json ที่อยู่ใน column url ออกมา
+    console.log("Profile URL: " + urlProfile);
+
+    const resSignature = await services.postPictureOnFireBase(signature);
+    const parsedData2 = JSON.parse(resSignature); //แปลงค่าเป็น json
+    const urlSignature = parsedData2.url; //ดึงค่า json ที่อยู่ใน column url ออกมา
+    console.log("Signature URL: " + urlSignature);
+
+    const resCV = await services.postFilePDFOnFireBase(cvfile);
+    const parsedData3 = JSON.parse(resCV); //แปลงค่าเป็น json
+    const urlCV = parsedData3.url; //ดึงค่า json ที่อยู่ใน column url ออกมา
+    console.log("Resume URL: " + urlCV);
+
+    await btnRegister(
+      username,
+      email,
+      password,
+      nameTh,
+      lastNameTh,
+      nameEn,
+      lastNameEn,
+      phoneNumber,
+      urlProfile,
+      urlCV,
+      urlSignature
+    );
+  }
+
+  async function btnRegister(
+    username,
+    email,
+    password,
+    nameTh,
+    lastNameTh,
+    nameEn,
+    lastNameEn,
+    phoneNumber,
+    profile,
+    cvfile,
+    signature
+  ) {
+    const body = {
+      email: email,
+      password: password,
+      name_th: nameTh + " " + lastNameTh,
+      name_en: nameEn + " " + lastNameEn,
+      account_name: username,
+      description: null,
+      phone_number: phoneNumber,
+      profile_picture: profile,
+      cv: cvfile,
+      signature: signature,
+      qr_code: null,
+      role: 3,
+      status: 0,
+    };
+    console.log("After setState: " + username);
+    console.log("After setState: " + email);
+    console.log("After setState: " + password);
+    console.log("After setState: " + nameTh);
+    console.log("After setState: " + lastNameTh);
+    console.log("After setState: " + nameEn);
+    console.log("After setState: " + phoneNumber);
+    console.log("After setState: " + profile);
+    console.log("After setState: " + cvfile);
+    console.log("After setState: " + signature);
+    console.log("Body: " + body);
+
+    await services.postInstructorRegister(body);
+
+    alert("สมัครสมาชิกสำเร็จ");
+    goToHomePage();
+  }
 
   function goBack() {
     navigate(-1);
   }
 
-  function goToLoginPage() {
-    navigate(`/login`);
+  function goToHomePage() {
+    navigate(`/`);
   }
 
   function handleMouseEnter(event) {
@@ -140,7 +255,7 @@ function InstructorRegister() {
                 type="file"
                 accept="image/*"
                 style={{ display: "none" }}
-                onChange={handleFileSelect}
+                onChange={handleProfileSelect}
                 ref={fileInputRef}
               />
               <Avatar
@@ -288,17 +403,12 @@ function InstructorRegister() {
                   )}
                   <Grid container>
                     <Grid xs={8}>
-                      {inputText(
-                        "CV (Curriculum Vitae) หรือ Resume",
-                        "file",
-                        "cvFile",
-                        cvFile,
-                        <UploadFileIcon
-                          fontSize="large"
-                          style={{ marginRight: "20px", color: "black" }}
-                        />,
-                        "cvFile"
-                      )}
+                      <TextField
+                        type="file"
+                        variant="outlined"
+                        onChange={handleCVFileSelect}
+                        // ref={fileInputRef}
+                      />
                     </Grid>
                     <Grid
                       xs={4}
@@ -313,17 +423,13 @@ function InstructorRegister() {
                   </Grid>
                   <Grid container>
                     <Grid xs={8}>
-                      {inputText(
-                        "ลายเซ็น (Signature)",
-                        "file",
-                        "signature",
-                        signature,
-                        <UploadFileIcon
-                          fontSize="large"
-                          style={{ marginRight: "20px", color: "black" }}
-                        />,
-                        "signature"
-                      )}
+
+                      <TextField
+                        type="file"
+                        variant="outlined"
+                        onChange={handleSignatureSelect}
+                        // ref={fileInputRef}
+                      />
                     </Grid>
                     <Grid
                       xs={4}
@@ -349,17 +455,45 @@ function InstructorRegister() {
                 boxShadow: " 1px 1px 1px 1px",
               }}
               onClick={() => {
-                goToLoginPage();
-                console.log("After setState: " + username);
-                console.log("After setState: " + email);
-                console.log("After setState: " + password);
-                console.log("After setState: " + confirmPassword);
-                console.log("After setState: " + nameTh);
-                console.log("After setState: " + lastNameTh);
-                console.log("After setState: " + nameEn);
-                console.log("After setState: " + lastNameEn);
-                console.log("After setState: " + cvFile);
-                console.log("After setState: " + signature);
+                if (
+                  (username != null) | undefined &&
+                  (email != null) | undefined &&
+                  (password != null) | undefined &&
+                  (confirmPassword != null) | undefined &&
+                  (nameTh != null) | undefined &&
+                  (lastNameTh != null) | undefined &&
+                  (nameEn != null) | undefined &&
+                  (lastNameEn != null) | undefined &&
+                  (phone != null) | undefined &&
+                  (profile != null) | undefined &&
+                  (cvFile != null) | undefined &&
+                  (signature != null) | undefined
+                ) {
+                  if (password === confirmPassword) {
+                    uploadFileOnFireBase(
+                      username,
+                      email,
+                      password,
+                      nameTh,
+                      lastNameTh,
+                      nameEn,
+                      lastNameEn,
+                      phone,
+                      profile,
+                      cvFile,
+                      signature
+                    );
+                    // username.trim()
+                    alert("ผ่านๆๆ");
+                    
+                  }else{
+                    alert("รหัสผ่านไม่ตรงกัน !!!");
+                  }
+                }else {
+
+                  alert("กรุณากรอกข้อมูลให้ครบทุกช่อง !!!");
+                }
+
                 //   console.log("After setState: " + date);
               }}
             >
@@ -400,12 +534,7 @@ function InstructorRegister() {
             setLastNameEn(value);
           } else if (state === "phone") {
             setPhone(value);
-          } else if (state === "cvFile") {
-            setCvFile(value);
-          } else if (state === "signature") {
-            setSignature(value);
           }
-
           console.log(value);
         }}
         InputProps={{
